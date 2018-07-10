@@ -18,6 +18,7 @@
 #include <array>
 #include <atomic>
 #include <cstring>
+#include <thread>
 #include <cxxabi.h>
 // This file is copied over from GCC to provide size information. No logic of it is used.
 #include "unwind-cxx.h"
@@ -90,10 +91,12 @@ class ExceptionMemoryPool {
   public:
   static constexpr std::size_t max_exception_size = EXCEPTION_MEMORY__CXX_MAX_EXCEPTION_SIZE;
   static constexpr std::size_t pool_size = EXCEPTION_MEMORY__CXX_POOL_SIZE;
-  static constexpr std::size_t alignment = EXCEPTION_MEMORY__CXX_POOL_SIZE;
+  static constexpr std::size_t alignment = EXCEPTION_MEMORY__CXX_POOL_ALIGNMENT;
 
-  ExceptionMemoryPool() noexcept
+  inline ExceptionMemoryPool() noexcept
   {
+    (void) start_idx(); // Making sure the hasher is created on startup.
+
     for (auto &elem : m_pool) {
       elem.second = aligned_alloc(alignment, max_exception_size);
       if (elem.second == nullptr) {
@@ -105,7 +108,7 @@ class ExceptionMemoryPool {
     }
   }
 
-  ~ExceptionMemoryPool() noexcept {
+  inline ~ExceptionMemoryPool() noexcept {
     for (auto &elem : m_pool) {
       free(elem.second);
     }
@@ -116,14 +119,16 @@ class ExceptionMemoryPool {
     * exception_memory_pool_exhausted is called.
     * \return Pointer to the allocated memory block.
    */
-  void *allocate(const size_t thrown_size) noexcept {
+  inline void *allocate(const size_t thrown_size) noexcept {
     if (thrown_size > max_exception_size) {
 #ifdef EXCEPTION_MEMORY___CXX_LOG_MEMORY_POOL
       std::cerr << "Exception too large." << std::endl;
 #endif
       return exception_too_large(thrown_size);
     }
-    for (auto &elem : m_pool) {
+    auto idx = inc_idx(start_idx());
+    while (idx != start_idx()) {
+      auto& elem = m_pool[idx];
       const auto occupied = elem.first.test_and_set();
       if(!occupied) {
 #ifdef EXCEPTION_MEMORY___CXX_LOG_MEMORY_POOL
@@ -131,6 +136,7 @@ class ExceptionMemoryPool {
 #endif
         return elem.second;
       }
+      idx = inc_idx(idx);
     }
 #ifdef EXCEPTION_MEMORY___CXX_LOG_MEMORY_POOL
     std::cerr << "Memory pool exhausted." << std::endl;
@@ -141,8 +147,10 @@ class ExceptionMemoryPool {
   /** Deallocates \param thrown_object from the pool. If the memory did not originate from this
    *  memory pool exception_memory_pool_leak() is called.
    */
-  void deallocate(void *thrown_object) noexcept {
-    for (auto &elem : m_pool) {
+  inline void deallocate(void *thrown_object) noexcept {
+    auto idx = inc_idx(start_idx());
+    while (idx != start_idx()) {
+      auto& elem = m_pool[idx];
       if (elem.second == thrown_object) {
         elem.first.clear();
 #ifdef EXCEPTION_MEMORY___CXX_LOG_MEMORY_POOL
@@ -150,6 +158,7 @@ class ExceptionMemoryPool {
 #endif
         return;
       }
+      idx = inc_idx(idx);
     }
 #ifdef EXCEPTION_MEMORY___CXX_LOG_MEMORY_POOL
     std::cerr << "Freeing exception not from this pool. Memory leak present!" << std::endl;
@@ -160,7 +169,7 @@ class ExceptionMemoryPool {
   /** WARNING: This function is not thread safe! Only use it for testing!
    *  \return The number of used segments in the memory pool.
    */
-  std::size_t used_segments() noexcept {
+  inline std::size_t used_segments() noexcept {
     std::size_t counter = std::size_t();
     for(auto& elem : m_pool)
     {
@@ -176,7 +185,7 @@ class ExceptionMemoryPool {
   }
 
   /// \returns if \param vptr was allocated from this memory pool.
-  bool is_allocated_by_this_pool(void *vptr) const noexcept {
+  inline bool is_allocated_by_this_pool(void *vptr) const noexcept {
     void *ptr = (char *) vptr - sizeof (__cxxabiv1::__cxa_refcounted_exception);
     bool ret = false;
     for (const auto& elem : m_pool) {
@@ -187,6 +196,24 @@ class ExceptionMemoryPool {
   }
   private:
   std::array <std::pair<std::atomic_flag, void *>, pool_size> m_pool;
+
+  /// \return The thread specific start of where to look for a free memory segment.
+  std::size_t start_idx() const noexcept  {
+    static const auto hasher = std::hash<std::thread::id>();
+    static const thread_local std::size_t t =
+        hasher(std::this_thread::get_id()) % pool_size; // const (threadsafe) nothrow operation
+    return t;
+  }
+
+  /// \return \param idx increased by 1 modulo pool_size.
+  std::size_t inc_idx(const std::size_t idx) const noexcept {
+    if (idx + 1 == pool_size) {
+      return 0;
+    }
+    else {
+      return idx + 1;
+    }
+  }
 };
 
 static ExceptionMemoryPool cxx_exception_memory_pool;

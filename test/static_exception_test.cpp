@@ -18,6 +18,10 @@
 #include <dlfcn.h>
 #include <gtest/gtest.h>
 
+#ifdef ENABLE_BOOST_TIMER
+#include <boost/timer/timer.hpp>
+#endif
+
 #include "SomeClass.hpp"
 
 #define EXCEPTION_MEMORY_USE_STATIC_EXCEPTION
@@ -91,6 +95,10 @@ void check_used_segments(std::size_t expected) {
 
 TEST(StaticExceptions, DeepRecursion) {
   check_used_segments(0);
+#ifdef ENABLE_BOOST_TIMER
+  boost::timer::cpu_timer t;
+  t.start();
+#endif
   std::array<std::thread, 128> threads;
   for(auto & elem : threads) {
     elem = std::thread([](){
@@ -106,6 +114,11 @@ TEST(StaticExceptions, DeepRecursion) {
   }
   check_used_segments(0);
   g_forbid_malloc = false;
+
+#ifdef ENABLE_BOOST_TIMER
+  t.stop();
+  std::cout << t.format() << std::endl;
+#endif
 }
 
 TEST(StaticExceptions, ExceptionPtr) {

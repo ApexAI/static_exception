@@ -14,12 +14,16 @@
 
 add_subdirectory("/usr/src/gtest" ${CMAKE_BINARY_DIR}/gtest)
 enable_testing()
-include_directories(${GTEST_INCLUDE_DIRS})
+find_package(Boost COMPONENTS timer)
+if(${Boost_FOUND})
+  add_definitions(-DENABLE_BOOST_TIMER)
+endif()
+include_directories(${GTEST_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 
 # We compile some shared library to check if everything works in this.
 add_library(some_library SHARED SomeClass.cpp SomeClass.hpp)
 
 add_executable(static_exception_test static_exception_test.cpp )
 
-target_link_libraries(static_exception_test some_library gtest gtest_main dl)
+target_link_libraries(static_exception_test some_library gtest gtest_main dl ${Boost_LIBRARIES})
 add_test(StrCompare static_exception_test)
