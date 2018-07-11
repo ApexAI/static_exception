@@ -178,7 +178,7 @@ TEST(StaticExceptions, MemoryLeak) {
 
 TEST(StaticExceptions, SharedLibrary) {
   g_forbid_malloc = true;
-  auto sc = SomeClass();
+  SomeClass();
   g_forbid_malloc = false;
 
 }

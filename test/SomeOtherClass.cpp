@@ -12,19 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "SomeClass.hpp"
 #include "SomeOtherClass.hpp"
 
-class SomeException {
+class SomeOtherException {
   char dummy_data[512];
 };
 
-SomeClass::SomeClass() {
+void some_func() {
   try {
-
-    throw SomeException();
+    throw SomeOtherException();
   }
   catch (...) {
-    SomeOtherClass();
+
+  }
+}
+
+SomeOtherClass::SomeOtherClass() {
+  try {
+    some_func();
+    throw SomeOtherException();
+  }
+  catch (...) {
+
   }
 };

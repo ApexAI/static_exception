@@ -12,19 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "SomeClass.hpp"
-#include "SomeOtherClass.hpp"
+#ifndef STATIC_EXCEPTION_SOMEOTHERCLASS_HPP
+#define STATIC_EXCEPTION_SOMEOTHERCLASS_HPP
 
-class SomeException {
-  char dummy_data[512];
+class SomeOtherClass {
+public:
+  SomeOtherClass();
 };
 
-SomeClass::SomeClass() {
-  try {
-
-    throw SomeException();
-  }
-  catch (...) {
-    SomeOtherClass();
-  }
-};
+#endif //STATIC_EXCEPTION_SOMEOTHERCLASS_HPP
