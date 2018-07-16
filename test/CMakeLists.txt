@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_subdirectory("/usr/src/gtest" ${CMAKE_BINARY_DIR}/gtest)
+SET(GTEST_SOURCE_DIR /usr/src/gtest CACHE STRING "Source directory of gtest")
+add_subdirectory(${GTEST_SOURCE_DIR} ${CMAKE_BINARY_DIR}/gtest)
 enable_testing()
 find_package(Boost COMPONENTS timer)
 if(${Boost_FOUND})

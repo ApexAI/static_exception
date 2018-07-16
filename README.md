@@ -54,6 +54,16 @@ extern "C" void exception_memory_pool_leak() {
 }
 ```
 
+# Running the Tests
+
+Note that you can omit the `cmake` parameter in the instructions below
+on ubuntu as the gtest source dirctory is automatically set.
+
+1. Install gtest: `sudo apt-get install libgtest-dev`.
+1. Create and enter build folder: `cd static_exception && mkdir build && cd build`.
+1. Build the tests: `cmake ../static_exception -DGTEST_SOURCE_DIR:STRING="pathToGtestInstallation" .. && make`.
+1. Run the tests: `test/static_exception_test`.
+
 # Limitations
 
 * Exceptions thrown during library initalization might still be allocated
