@@ -64,7 +64,7 @@ namespace __cxx{
  *  \param thrown_size The requested memory size.
  *  \return A pointer to some additional memory.
  */
-extern "C" void* exception_memory_pool_exhausted(const size_t thrown_size) {
+inline void* exception_memory_pool_exhausted(const size_t thrown_size) {
   std::terminate();
   return nullptr;
 }
@@ -74,7 +74,7 @@ extern "C" void* exception_memory_pool_exhausted(const size_t thrown_size) {
  *  \param thrown_size The requested memory size.
  *  \return A pointer to some additional memory.
  */
-extern "C" void* exception_too_large(const size_t thrown_size) {
+inline void* exception_too_large(const size_t thrown_size) {
   std::terminate();
   return nullptr;
 }
@@ -82,7 +82,7 @@ extern "C" void* exception_too_large(const size_t thrown_size) {
 /** Overridable function to specify behaviour if the memory pool detects an memory leak. By
  *  default this function calls std::terminate.
  */
-extern "C" void exception_memory_pool_leak() {
+inline void exception_memory_pool_leak() {
   std::terminate();
 }
 
@@ -223,7 +223,7 @@ static ExceptionMemoryPool cxx_exception_memory_pool;
  *  \param thrown_size Requested memory size.
  *  \return Pointer to allocated memory.
  */
-extern "C" void * cxa_allocate_exception(size_t thrown_size) noexcept
+inline void * cxa_allocate_exception(size_t thrown_size) noexcept
 {
   thrown_size += sizeof (__cxxabiv1::__cxa_refcounted_exception);
   auto ret = cxx_exception_memory_pool.allocate(thrown_size);
@@ -234,7 +234,7 @@ extern "C" void * cxa_allocate_exception(size_t thrown_size) noexcept
 /** Helper function which frees memory from the exception memory pool.
  *  \param vptr Pointer to the memory to free.
  */
-extern "C" void cxa_free_exception(void *vptr) noexcept
+inline void cxa_free_exception(void *vptr) noexcept
 {
   char *ptr = (char *) vptr - sizeof (__cxxabiv1::__cxa_refcounted_exception);
   cxx_exception_memory_pool.deallocate(ptr);
@@ -244,7 +244,7 @@ extern "C" void cxa_free_exception(void *vptr) noexcept
  *  from the exception memory pool and transforms it into a format usable by the compiler.
  *  \return vptr Pointer to allocated memory.
  */
-extern "C" void* cxa_allocate_dependent_exception() noexcept
+inline void* cxa_allocate_dependent_exception() noexcept
 {
   void * ret = cxx_exception_memory_pool.allocate(sizeof (__cxxabiv1::__cxa_dependent_exception));
   memset (ret, 0, sizeof (__cxxabiv1::__cxa_dependent_exception));
@@ -255,7 +255,7 @@ extern "C" void* cxa_allocate_dependent_exception() noexcept
  *  from the exception memory pool and transforms it into a format usable by the compiler.
  *  \param vptr Pointer to allocated memory.
  */
-extern "C" void cxa_free_dependent_exception (void *vptr) noexcept
+inline void cxa_free_dependent_exception (void *vptr) noexcept
 {
   cxx_exception_memory_pool.deallocate(vptr);
 }
