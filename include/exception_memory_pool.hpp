@@ -187,12 +187,12 @@ class ExceptionMemoryPool {
   /// \returns if \param vptr was allocated from this memory pool.
   inline bool is_allocated_by_this_pool(void *vptr) const noexcept {
     void *ptr = (char *) vptr - sizeof (__cxxabiv1::__cxa_refcounted_exception);
-    bool ret = false;
     for (const auto& elem : m_pool) {
       if (ptr == elem.second) {
         return true;
       }
     }
+    return false;
   }
   private:
   std::array <std::pair<std::atomic_flag, void *>, pool_size> m_pool;
