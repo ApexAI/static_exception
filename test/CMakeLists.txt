@@ -22,7 +22,7 @@ endif()
 include_directories(${GTEST_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 
 # We compile some shared libraries to check if everything works in this context aswell.
-add_library(some_other_library STATIC SomeOtherClass.cpp SomeOtherClass.hpp)
+add_library(some_other_library SHARED SomeOtherClass.cpp SomeOtherClass.hpp)
 add_library(some_library SHARED SomeClass.cpp SomeClass.hpp)
 
 
