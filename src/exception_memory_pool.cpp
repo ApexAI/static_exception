@@ -271,21 +271,23 @@ std::size_t __get_exception_memory_pool_used_segments() {
 }
 
 // Override the compiler functions
-extern "C" void * __cxa_allocate_exception(size_t thrown_size)
+extern "C" void * __cxa_allocate_exception(size_t thrown_size) _GLIBCXX_NOTHROW
 {
   return exception_memory::__cxx::cxa_allocate_exception(thrown_size);
 }
 
-extern "C" void __cxa_free_exception(void *thrown_object)
+extern "C" void __cxa_free_exception(void *thrown_object) _GLIBCXX_NOTHROW
 {
   exception_memory::__cxx::cxa_free_exception(thrown_object);
 }
 
-extern "C" __cxxabiv1::__cxa_dependent_exception * __cxa_allocate_dependent_exception () {
+extern "C" __cxxabiv1::__cxa_dependent_exception *
+__cxa_allocate_dependent_exception() _GLIBCXX_NOTHROW {
   return static_cast<__cxxabiv1::__cxa_dependent_exception*>(exception_memory::__cxx::cxa_allocate_dependent_exception());
 }
 
-extern "C" void __cxa_free_dependent_exception (__cxxabiv1::__cxa_dependent_exception * dependent_exception) {
+extern "C" void __cxa_free_dependent_exception
+    (__cxxabiv1::__cxa_dependent_exception * dependent_exception) _GLIBCXX_NOTHROW{
   exception_memory::__cxx::cxa_free_dependent_exception(dependent_exception);
 }
 
