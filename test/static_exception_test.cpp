@@ -27,12 +27,19 @@
 #define EXCEPTION_MEMORY_USE_STATIC_EXCEPTION
 
 #ifdef EXCEPTION_MEMORY_USE_STATIC_EXCEPTION
-#include <exception_memory_pool.hpp>
 #endif
 
 /// Makes malloc terminate if set to false.
 static bool g_forbid_malloc;
 
+namespace exception_memory {
+namespace __cxx {
+extern inline void cxa_free_dependent_exception (void *vptr) noexcept;
+extern inline void cxa_free_exception(void *vptr) noexcept;
+}
+}
+
+extern std::size_t __get_exception_memory_pool_used_segments();
 
 /// Custom malloc to check for memory allocation.
 void *malloc(size_t size) {
@@ -89,7 +96,7 @@ void recursive_except(std::size_t max_depth = 64, std::size_t depth = 0)
 void check_used_segments(std::size_t expected) {
   auto prev = g_forbid_malloc;
   g_forbid_malloc = false;
-  GTEST_ASSERT_EQ(exception_memory::__cxx::cxx_exception_memory_pool.used_segments(), expected);
+  GTEST_ASSERT_EQ(__get_exception_memory_pool_used_segments(), expected);
   g_forbid_malloc = prev;
 }
 
@@ -180,7 +187,6 @@ TEST(StaticExceptions, SharedLibrary) {
   g_forbid_malloc = true;
   SomeClass();
   g_forbid_malloc = false;
-
 }
 
 int main(int argc, char **argv) {

@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef EXCEPTION_MEMORY_POOL_HPP
-#define EXCEPTION_MEMORY_POOL_HPP
-
 #include <array>
 #include <atomic>
 #include <cstring>
@@ -113,6 +110,9 @@ class ExceptionMemoryPool {
       free(elem.second);
     }
   }
+
+  ExceptionMemoryPool( const ExceptionMemoryPool& ) = delete;
+  ExceptionMemoryPool& operator=( const ExceptionMemoryPool& ) = delete;
 
   /** Allocates \param thrown_size from the memory pool. If the exception size is to large for the
     * pool to handle exception_too_large is called. If the memory pool is exhausted
@@ -263,6 +263,13 @@ inline void cxa_free_dependent_exception (void *vptr) noexcept
 }
 }
 
+/** WARNING: This function is not thread safe! Only use it for testing!
+ *  \return The number of used segments in the memory pool.
+ */
+std::size_t __get_exception_memory_pool_used_segments() {
+  return exception_memory::__cxx::cxx_exception_memory_pool.used_segments();
+}
+
 // Override the compiler functions
 extern "C" void * __cxa_allocate_exception(size_t thrown_size)
 {
@@ -282,4 +289,3 @@ extern "C" void __cxa_free_dependent_exception (__cxxabiv1::__cxa_dependent_exce
   exception_memory::__cxx::cxa_free_dependent_exception(dependent_exception);
 }
 
-#endif // EXCEPTION_MEMORY_POOL_HPP

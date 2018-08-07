@@ -26,7 +26,7 @@ set(CMAKE_CXX_STANDARD 14)
 # add_definitions(-EXCEPTION_MEMORY__CXX_POOL_ALIGNMENT 8)
 
 
-include_directories(include)
+add_library(static_exception SHARED src/exception_memory_pool.cpp)
 add_subdirectory(test)
 
 

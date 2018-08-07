@@ -6,9 +6,13 @@ only library replaces this allocation scheme with a thread safe memory pool.
 
 # Usage
 
-You need to include `exception_memory_pool.hpp` in every file you intend
-to throw an exception in. You do not need to add this include to libraries
-to make it work.
+To use this library you need to include it and then link to it:
+
+```
+add_subdirectory(static_exception)
+add_executable(my_exe ...)
+target_link_libraries(my_exe static_exception ...)
+```
 
 # Configuration
 
