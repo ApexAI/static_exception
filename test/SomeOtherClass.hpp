@@ -20,4 +20,6 @@ public:
   SomeOtherClass();
 };
 
+void some_func2();
+
 #endif //STATIC_EXCEPTION_SOMEOTHERCLASS_HPP

@@ -28,3 +28,7 @@ SomeClass::SomeClass() {
     SomeOtherClass();
   }
 };
+
+void ff() {
+  some_func2();
+}

@@ -20,4 +20,5 @@ public:
   SomeClass();
 };
 
+void ff();
 #endif //STATIC_EXEPTIONS_SOMECLASS_HPP

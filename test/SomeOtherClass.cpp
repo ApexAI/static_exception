@@ -36,3 +36,23 @@ SomeOtherClass::SomeOtherClass() {
 
   }
 };
+
+void some_func2() {
+  try {
+    throw SomeOtherException();
+  }
+  catch (...) {
+
+  }
+  try {
+    throw SomeOtherException();
+  }
+  catch (...) {
+
+  }
+  try {
+    throw SomeOtherException();
+  }
+  catch (...) {
+  }
+}

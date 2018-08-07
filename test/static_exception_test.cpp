@@ -183,9 +183,15 @@ TEST(StaticExceptions, MemoryLeak) {
   ASSERT_DEATH(exception_memory::__cxx::cxa_free_dependent_exception(som_mem), "");
 }
 
-TEST(StaticExceptions, SharedLibrary) {
+TEST(StaticExceptions, SharedLibraryClass) {
   g_forbid_malloc = true;
   SomeClass();
+  g_forbid_malloc = false;
+}
+
+TEST(StaticExceptions, SharedLibraryFunc) {
+  g_forbid_malloc = true;
+  ff();
   g_forbid_malloc = false;
 }
 
