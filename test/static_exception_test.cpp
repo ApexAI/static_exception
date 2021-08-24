@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <chrono>
 #include <thread>
 #include <algorithm>
 #include <malloc.h>
 #include <dlfcn.h>
 #include <gtest/gtest.h>
 
-#ifdef ENABLE_BOOST_TIMER
-#include <boost/timer/timer.hpp>
-#endif
 
 #include "SomeClass.hpp"
 
@@ -102,10 +100,10 @@ void check_used_segments(std::size_t expected) {
 
 TEST(StaticExceptions, DeepRecursion) {
   check_used_segments(0);
-#ifdef ENABLE_BOOST_TIMER
-  boost::timer::cpu_timer t;
-  t.start();
-#endif
+
+  std::chrono::time_point<std::chrono::system_clock> start, end;
+  start = std::chrono::system_clock::now();
+
   std::array<std::thread, 128> threads;
   for(auto & elem : threads) {
     elem = std::thread([](){
@@ -122,10 +120,10 @@ TEST(StaticExceptions, DeepRecursion) {
   check_used_segments(0);
   g_forbid_malloc = false;
 
-#ifdef ENABLE_BOOST_TIMER
-  t.stop();
-  std::cout << t.format() << std::endl;
-#endif
+  end = std::chrono::system_clock::now();
+  
+  std::chrono::duration<float> elapsed_seconds =  end - start;
+  std::cout << "elapsed time: " << elapsed_seconds.count() << std::endl;
 }
 
 TEST(StaticExceptions, ExceptionPtr) {
