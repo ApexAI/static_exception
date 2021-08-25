@@ -21,7 +21,7 @@
 #include "unwind-cxx.h"
 
 #ifdef __GNUC__
-#if __GNUC__==9 && __GNUC_MINOR__==3 && __GNUC_PATCHLEVEL__==0
+#if __GNUC_PREREQ(5,4)
 #else
 #error Unsupported GCC version. Required version is __GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__.
 #endif

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <ctime>
+#include <chrono>
 #include <thread>
 #include <algorithm>
 #include <malloc.h>
@@ -103,8 +104,8 @@ TEST(StaticExceptions, DeepRecursion) {
 
   // use std::clock to measure cpu time
   std::clock_t start = std::clock();
-  // use std::chrono to measure wall time
-  auto t_start = std::chrono::high_resolution_clock::now();
+  // use steady_clock (monotonic) to measure interval
+  auto t_start = std::chrono::steady_clock::now();
 
   std::array<std::thread, 128> threads;
   for(auto & elem : threads) {
@@ -124,12 +125,13 @@ TEST(StaticExceptions, DeepRecursion) {
 
   // use std::clock to measure cpu time
   std::clock_t end = std::clock();
-  auto t_end = std::chrono::high_resolution_clock::now();
+  // use steady_clock (monotonic) to measure interval
+  auto t_end = std::chrono::steady_clock::now();
 
   // calculate cpu time (ms)
   auto elapsed_cpu_time = 1000.0 * (end - start) / CLOCKS_PER_SEC;
   
-  // calculate wall clock time
+  // calculate interval time from steady_clock times
   auto elapsed_wall_time = std::chrono::duration<double, std::milli>(t_end - t_start);
 
   std::cout << std::fixed << std::setprecision(2) <<
