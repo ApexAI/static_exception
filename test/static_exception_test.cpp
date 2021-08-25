@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <ctime>
+#include <chrono>
 #include <thread>
 #include <algorithm>
 #include <malloc.h>
 #include <dlfcn.h>
 #include <gtest/gtest.h>
 
-#ifdef ENABLE_BOOST_TIMER
-#include <boost/timer/timer.hpp>
-#endif
 
 #include "SomeClass.hpp"
 
@@ -102,10 +101,12 @@ void check_used_segments(std::size_t expected) {
 
 TEST(StaticExceptions, DeepRecursion) {
   check_used_segments(0);
-#ifdef ENABLE_BOOST_TIMER
-  boost::timer::cpu_timer t;
-  t.start();
-#endif
+
+  // use std::clock to measure cpu time
+  std::clock_t start = std::clock();
+  // use steady_clock (monotonic) to measure interval
+  auto t_start = std::chrono::steady_clock::now();
+
   std::array<std::thread, 128> threads;
   for(auto & elem : threads) {
     elem = std::thread([](){
@@ -122,10 +123,20 @@ TEST(StaticExceptions, DeepRecursion) {
   check_used_segments(0);
   g_forbid_malloc = false;
 
-#ifdef ENABLE_BOOST_TIMER
-  t.stop();
-  std::cout << t.format() << std::endl;
-#endif
+  // use std::clock to measure cpu time
+  std::clock_t end = std::clock();
+  // use steady_clock (monotonic) to measure interval
+  auto t_end = std::chrono::steady_clock::now();
+
+  // calculate cpu time (ms)
+  auto elapsed_cpu_time = 1000.0 * (end - start) / CLOCKS_PER_SEC;
+  
+  // calculate interval time from steady_clock times
+  auto elapsed_wall_time = std::chrono::duration<double, std::milli>(t_end - t_start);
+
+  std::cout << std::fixed << std::setprecision(2) <<
+    "[ CPU TIME USED ] " << elapsed_cpu_time  << " ms\n" <<
+    "[ WALL TIME USED ] " << elapsed_wall_time.count() << " ms" << std::endl;
 }
 
 TEST(StaticExceptions, ExceptionPtr) {
