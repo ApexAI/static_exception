@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <chrono>
+#include <ctime>
 #include <thread>
 #include <algorithm>
 #include <malloc.h>
@@ -101,8 +101,10 @@ void check_used_segments(std::size_t expected) {
 TEST(StaticExceptions, DeepRecursion) {
   check_used_segments(0);
 
-  std::chrono::time_point<std::chrono::system_clock> start, end;
-  start = std::chrono::system_clock::now();
+  // use std::clock to measure cpu time
+  std::clock_t start = std::clock();
+  // use std::chrono to measure wall time
+  auto t_start = std::chrono::high_resolution_clock::now();
 
   std::array<std::thread, 128> threads;
   for(auto & elem : threads) {
@@ -120,10 +122,19 @@ TEST(StaticExceptions, DeepRecursion) {
   check_used_segments(0);
   g_forbid_malloc = false;
 
-  end = std::chrono::system_clock::now();
+  // use std::clock to measure cpu time
+  std::clock_t end = std::clock();
+  auto t_end = std::chrono::high_resolution_clock::now();
+
+  // calculate cpu time (ms)
+  auto elapsed_cpu_time = 1000.0 * (end - start) / CLOCKS_PER_SEC;
   
-  std::chrono::duration<float> elapsed_seconds =  end - start;
-  std::cout << "elapsed time: " << elapsed_seconds.count() << std::endl;
+  // calculate wall clock time
+  auto elapsed_wall_time = std::chrono::duration<double, std::milli>(t_end - t_start);
+
+  std::cout << std::fixed << std::setprecision(2) <<
+    "[ CPU TIME USED ] " << elapsed_cpu_time  << " ms\n" <<
+    "[ WALL TIME USED ] " << elapsed_wall_time.count() << " ms" << std::endl;
 }
 
 TEST(StaticExceptions, ExceptionPtr) {
