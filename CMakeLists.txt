@@ -15,7 +15,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 project(static_exception)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # Uncomment to enable logging:
 # add_definitions(-DEXCEPTION_MEMORY___CXX_LOG_MEMORY_POOL)
@@ -25,9 +25,6 @@ set(CMAKE_CXX_STANDARD 14)
 # add_definitions(-EXCEPTION_MEMORY__CXX_POOL_SIZE 64*128)
 # add_definitions(-EXCEPTION_MEMORY__CXX_POOL_ALIGNMENT 8)
 
-
 add_library(static_exception SHARED src/exception_memory_pool.cpp)
+
 add_subdirectory(test)
-
-
-

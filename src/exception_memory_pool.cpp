@@ -15,6 +15,7 @@
 #include <array>
 #include <atomic>
 #include <cstring>
+#include <cstdlib>
 #include <thread>
 #include <cxxabi.h>
 // This file is copied over from GCC to provide size information. No logic of it is used.
