@@ -1,0 +1,57 @@
+name: Build and test
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '**'
+  pull_request:
+    branches:
+      - master
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  WORKSPACE_PATH: workspace
+  CLONE_PATH: workspace/src/static_exception
+
+# only run one build doc workflow at a time, cancel any running ones
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        docker_image:
+          - ubuntu:focal
+          - ubuntu:jammy
+    container:
+      image: ${{ matrix.docker_image }}
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Setup workspace
+        run: mkdir -p ${{ env.CLONE_PATH }}
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.CLONE_PATH }}
+      - name: Install dependencies
+        run: |
+          apt-get update -y
+          apt-get install build-essential cmake libgtest-dev -y
+      - name: Build
+        run: |
+          cd ${{ env.CLONE_PATH }}
+          mkdir build && cd build
+          cmake ../ -DGTEST_SOURCE_DIR:STRING="pathToGtestInstallation" ..
+          make
+      - name: Run tests
+        run: |
+          cd ${{ env.CLONE_PATH }}
+          cd build
+          ./test/static_exception_test
