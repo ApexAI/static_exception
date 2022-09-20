@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SET(GTEST_SOURCE_DIR /usr/src/gtest CACHE STRING "Source directory of gtest")
-add_subdirectory(${GTEST_SOURCE_DIR} ${CMAKE_BINARY_DIR}/gtest)
+find_package(GTest REQUIRED)
 enable_testing()
 
 include_directories(${GTEST_INCLUDE_DIRS})
@@ -22,8 +21,6 @@ include_directories(${GTEST_INCLUDE_DIRS})
 add_library(some_other_library SHARED SomeOtherClass.cpp SomeOtherClass.hpp)
 add_library(some_library SHARED SomeClass.cpp SomeClass.hpp)
 
-
-
 add_executable(static_exception_test static_exception_test.cpp)
 
 target_link_libraries(static_exception_test
@@ -31,5 +28,6 @@ target_link_libraries(static_exception_test
     some_other_library
     gtest gtest_main
     dl
-    static_exception)
+    static_exception
+    pthread)
 add_test(StrCompare static_exception_test)
