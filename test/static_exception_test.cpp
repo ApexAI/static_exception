@@ -19,6 +19,7 @@
 #include <malloc.h>
 #include <dlfcn.h>
 #include <gtest/gtest.h>
+#include <iomanip>
 
 
 #include "SomeClass.hpp"
